@@ -125,7 +125,7 @@ def plot_racing_localistion(estimates, true_states, noisy_states, robot):
 
     plt.legend()
 
-    plt.savefig("media/Particle Filter localisation.svg")
+    plt.savefig("Imgs/ParticleFilter_estimation.svg")
     plt.show()
 
 

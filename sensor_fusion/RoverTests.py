@@ -53,6 +53,6 @@ def test_pf():
     plot_estimation(pf_robot, pf)
 
 
-# test_ekf()
+test_ekf()
 # test_ukf()
-test_pf()
+# test_pf()

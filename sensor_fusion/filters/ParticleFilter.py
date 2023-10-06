@@ -3,6 +3,7 @@ import numpy as np
 
 class ParticleFilter:
     def __init__(self, init_belief, f, h, Q, R, NP) -> None:
+        self.name = "Particle Filter"
         self.estimates = [init_belief.get_mean()]
         self.f = f
         self.h = h

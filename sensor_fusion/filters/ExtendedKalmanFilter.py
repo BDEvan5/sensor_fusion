@@ -4,6 +4,7 @@ import numpy as np
 
 class ExtendedKalmanFilter:
     def __init__(self, init_belief, f, h, F_k, H_k, Q, R):
+        self.name = "Extended Kalman Filter"
         self.beliefs = [init_belief]
         self.prior = None
         self.f = f

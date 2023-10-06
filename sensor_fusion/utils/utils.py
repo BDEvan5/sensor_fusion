@@ -20,6 +20,10 @@ def plot_estimation(robot, filter):
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.legend()
+    plt.title(filter.name)
+
+    plt.savefig(f"media/{filter.name}.svg")
+
     plt.show()
 
 def plot_estimation_belief(robot, filter):
@@ -46,6 +50,10 @@ def plot_estimation_belief(robot, filter):
 
     plt.gca().set_aspect('equal', adjustable='box')
     plt.legend()
+    plt.title(filter.name)
+
+    plt.savefig(f"media/{filter.name}.svg")
+
     plt.show()
 
 

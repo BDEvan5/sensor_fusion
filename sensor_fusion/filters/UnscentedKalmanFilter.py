@@ -4,6 +4,7 @@ import numpy as np
 
 class UnscentedKalmanFilter:
     def __init__(self, init_belief, f, h, Q, R):
+        self.name = "Unscented Kalman Filter"
         self.beliefs = [init_belief]
         self.prior = None
         self.f = f
