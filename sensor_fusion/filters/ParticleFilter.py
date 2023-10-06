@@ -21,6 +21,11 @@ class ParticleFilter:
         random_samples = np.random.multivariate_normal(np.zeros(3), self.Q, self.NP)
         self.particles = next_states + random_samples
 
+    def particle_control_update(self, control):
+        next_states = self.f(self.particles, control)
+        random_samples = np.random.multivariate_normal(np.zeros(3), self.Q, self.NP)
+        self.particles = next_states + random_samples
+
     def measurement_update(self, measurement):
         particle_measurements = self.h(self.particles)
         z = particle_measurements - measurement

@@ -42,7 +42,7 @@ Particle filter, LiDAR based localisation:
 
 ![](media/Particle%20Filter%20localisation.svg)
 
-
+![](media/ParticleFilter.gif)
 
 ### Planning improvements
 - Add the Linear Kalman Filter (LKF)
