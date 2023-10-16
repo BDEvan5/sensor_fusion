@@ -1,7 +1,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 from sensor_fusion.utils.Gaussian import Gaussian
-from sensor_fusion.robots.MultiSensorRover import MultiSensorRobot, GPS, IMU
+from sensor_fusion.robots.MultiSensorRover import MultiSensorRobot, GPS, IMU, Magnotometer
 
 
 
@@ -64,43 +64,42 @@ def test_full_fusion():
     Q = np.diag([0.2**2, 0.2**2, 0.05**2])
     # np.random.seed(10)
     init_state = np.array([0,0,-np.pi/4])
-    # gps = GPS(np.array([[1, 0]]), np.diag([0.1**2]), f_gps)
-    # imu = IMU(np.array([[0, 1]]), np.diag([0.5**2]), f_imu)
-    car = MultiSensorRobot(init_state, Q, 1/f_control, [])
+    gps = GPS(np.array([[1, 1, 0]]), np.diag([0.1**2]), f_gps)
+    mag = Magnotometer(np.array([[0, 0, 1]]), np.diag([0.3**2]), f_imu)
+    car = MultiSensorRobot(init_state, Q, 1/f_control, [gps, mag])
     init_belief = Gaussian(init_state, np.diag([1**2, 1**2, 0.5**2]))
 
     ekf_no_sensor = SensorFusionEKF(init_belief, car.f, car.F_k, Q)
-    # lkf_imu_only = SensorFusionLKF(init_belief, car.A, car.B, car.motion_q)
-    # lkf_imu_only.add_sensor(imu)
-    # lkf_gps_only = SensorFusionLKF(init_belief, car.A, car.B, car.motion_q)
-    # lkf_gps_only.add_sensor(gps)
-    # lkf_full_fusion = SensorFusionLKF(init_belief, car.A, car.B, car.motion_q)
-    # lkf_full_fusion.add_sensor(imu)
-    # lkf_full_fusion.add_sensor(gps)
+    ekf_mag_only = SensorFusionEKF(init_belief, car.f, car.F_k, Q)
+    ekf_mag_only.add_sensor(mag)
+    ekf_gps_only = SensorFusionEKF(init_belief, car.f, car.F_k, Q)
+    ekf_gps_only.add_sensor(gps)
+    ekf_full_fusion = SensorFusionEKF(init_belief, car.f, car.F_k, Q)
+    ekf_full_fusion.add_sensor(mag)
+    ekf_full_fusion.add_sensor(gps)
 
-    controls = np.sin(np.linspace(0, simulation_time, simulation_time*f_control) * 0.2)  *0.1
-    # controls = np.sin(np.arange(0, T*f_s+ 1, 1/f_s) * 0.2)  *0.08
+    controls = np.sin(np.linspace(0, simulation_time, simulation_time*f_control) * 0.35)  *0.04
 
     for t in range(simulation_time * f_control):
         car.move(controls[t])
         ekf_no_sensor.control_update(controls[t])
-        # lkf_imu_only.control_update(inputs[t])
-        # lkf_gps_only.control_update(inputs[t])
-        # lkf_full_fusion.control_update(inputs[t])
+        ekf_mag_only.control_update(controls[t])
+        ekf_gps_only.control_update(controls[t])
+        ekf_full_fusion.control_update(controls[t])
 
         measurement = car.measure()
         ekf_no_sensor.measurement_update(measurement)
-        # lkf_imu_only.measurement_update(measurement)
-        # lkf_gps_only.measurement_update(measurement)
-        # lkf_full_fusion.measurement_update(measurement)
+        ekf_mag_only.measurement_update(measurement)
+        ekf_gps_only.measurement_update(measurement)
+        ekf_full_fusion.measurement_update(measurement)
 
     car_states = np.array(car.true_states)
     print(f"Mean Error (no sensor): {np.mean(np.abs(ekf_no_sensor.get_estimated_states() - car_states)):.3f}")
-    # print(f"Mean Error (imu only): {np.mean(np.abs(lkf_imu_only.get_estimated_states() - car_states)):.3f}")
-    # print(f"Mean Error (gps only): {np.mean(np.abs(lkf_gps_only.get_estimated_states() - car_states)):.3f}")
-    # print(f"Mean Error (full fusion): {np.mean(np.abs(lkf_full_fusion.get_estimated_states() - car_states)):.3f}")
+    print(f"Mean Error (mag only): {np.mean(np.abs(ekf_mag_only.get_estimated_states() - car_states)):.3f}")
+    print(f"Mean Error (gps only): {np.mean(np.abs(ekf_gps_only.get_estimated_states() - car_states)):.3f}")
+    print(f"Mean Error (full fusion): {np.mean(np.abs(ekf_full_fusion.get_estimated_states() - car_states)):.3f}")
 
-    plot_2D_comparison([ekf_no_sensor], car, "comparison")
+    plot_2D_comparison([ekf_no_sensor, ekf_gps_only, ekf_mag_only, ekf_full_fusion], car, "comparison")
 
 
 
@@ -111,7 +110,7 @@ def plot_2D_comparison(filter_list, car, label):
     a3 = plt.subplot(2, 2, 2)
     a4 = plt.subplot(2, 2, 4)
 
-    labels = ["No Sensor", "IMU Only", "GPS Only", "Full Fusion"]
+    labels = ["No Sensor", "GPS Only", "Mag Only", "Full Fusion"]
 
     for f, filter in enumerate(filter_list):
         states = filter.get_estimated_states()
@@ -126,6 +125,7 @@ def plot_2D_comparison(filter_list, car, label):
         a3.plot(pos_cov**0.5, label=labels[f])
         a4.plot(covariances[:, 2, 2]**0.5)
 
+    a1.set_aspect('equal')
     a1.grid(True)
     a2.grid(True)
     a3.grid(True)
@@ -136,6 +136,7 @@ def plot_2D_comparison(filter_list, car, label):
     a4.set_ylabel("Heading Covariance")
     true_states = np.array(car.true_states)
     a1.plot(true_states[:, 0], true_states[:, 1], label="True Position", color='k')
+    a2.plot(true_states[:, 2], label="True heading", color='k')
     a1.legend()
     a3.legend()
 

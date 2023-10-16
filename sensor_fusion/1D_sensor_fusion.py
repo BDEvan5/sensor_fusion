@@ -68,6 +68,8 @@ class SensorFusionLKF:
 
             mean = self.beliefs[-1].get_mean()
             cov = self.beliefs[-1].get_covariance()
+            inv = np.linalg.inv(C.dot(cov).dot(C.T)+R)
+            init = cov.dot(C.T)
             L = cov.dot(C.T).dot(np.linalg.inv(C.dot(cov).dot(C.T)+R))
             mean_ = mean + L.dot(measurement-C.dot(mean))
             cov_ = (np.eye(mean.size)-L.dot(C)).dot(cov)
@@ -95,6 +97,21 @@ class GPS:
             measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(1), self.R)
         else: measurement = None
         return measurement
+
+class IMU:
+    def __init__(self, C, R, frequency) -> None:
+        self.name = "IMU"
+        self.C = C
+        self.R = R
+        self.dt = 1/frequency
+
+    def measure(self, state, t):
+        print(f"Measure {t%self.dt}")
+        if t%self.dt < 0.05: 
+            measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(1), self.R)
+        else: measurement = None
+        return measurement
+
 
 simulation_time = 10 # seconds
 f_control = 20 # seconds
@@ -135,6 +152,46 @@ def test_only_gps():
         sensor_fusion_lkf.measurement_update(measurement)
 
     plot_beliefs(sensor_fusion_lkf, car, inputs, "gps_only")
+
+def test_only_imu():
+    init_state = np.array([[0], [0]])
+    # gps = GPS(np.array([[1, 0]]), np.diag([0.1**2]), f_gps)
+    imu = IMU(np.array([[0, 1]]), np.diag([0.5**2]), f_imu)
+    car = OneDimensionalCar(init_state, 1/f_control, [imu])
+    init_belief = Gaussian(init_state, np.diag([1**2, 0.5**2]))
+    sensor_fusion_lkf = SensorFusionLKF(init_belief, car.A, car.B, car.motion_q)
+    sensor_fusion_lkf.add_sensor(imu)
+
+    inputs = np.sin(np.linspace(0, 10, simulation_time * f_control))  + 0.02
+
+    for t in range(simulation_time * f_control):
+        car.move(inputs[t])
+        sensor_fusion_lkf.control_update(inputs[t])
+        measurement = car.measure()
+        sensor_fusion_lkf.measurement_update(measurement)
+
+    plot_beliefs(sensor_fusion_lkf, car, inputs, "imu_only")
+
+
+def test_full_fusion():
+    init_state = np.array([[0], [0]])
+    gps = GPS(np.array([[1, 0]]), np.diag([0.1**2]), f_gps)
+    imu = IMU(np.array([[0, 1]]), np.diag([0.5**2]), f_imu)
+    car = OneDimensionalCar(init_state, 1/f_control, [imu, gps])
+    init_belief = Gaussian(init_state, np.diag([1**2, 0.5**2]))
+    sensor_fusion_lkf = SensorFusionLKF(init_belief, car.A, car.B, car.motion_q)
+    sensor_fusion_lkf.add_sensor(imu)
+    sensor_fusion_lkf.add_sensor(gps)
+
+    inputs = np.sin(np.linspace(0, 10, simulation_time * f_control))  + 0.02
+
+    for t in range(simulation_time * f_control):
+        car.move(inputs[t])
+        sensor_fusion_lkf.control_update(inputs[t])
+        measurement = car.measure()
+        sensor_fusion_lkf.measurement_update(measurement)
+
+    plot_beliefs(sensor_fusion_lkf, car, inputs, "full_fusion")
 
 
 
@@ -186,5 +243,7 @@ def plot_beliefs(filter, car, inputs, label):
 
 
 # test_no_measurement()
-test_only_gps()
+# test_only_gps()
+# test_only_imu() 
+test_full_fusion()
 
