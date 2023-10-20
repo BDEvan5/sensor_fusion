@@ -14,7 +14,7 @@ class OneDimensionalCar:
         
         self.A = np.array([[1, self.dt], [0, 1]])
         self.B = np.array([[0], [self.dt]])
-        self.motion_q = np.diag([0.2, 0.05])
+        self.motion_q = np.diag([0.5, 0.05])
 
     def move(self, acceleration):
         dead_state = self.A.dot(self.dead_reckon_states[-1]) + self.B.dot(acceleration)

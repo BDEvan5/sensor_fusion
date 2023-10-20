@@ -54,18 +54,19 @@ class SensorFusionEKF:
         return np.array(covariances)
     
 
-simulation_time = 20 # seconds
-f_control = 20 # seconds
-f_imu = 10 # seconds
-f_gps = 0.5 # seconds
+simulation_time = 6 # seconds
+f_control = 10 # seconds
+f_imu = 5 # seconds
+f_gps = 1 # seconds
 
 
 def test_full_fusion():
-    Q = np.diag([0.2**2, 0.2**2, 0.05**2])
+    Q = np.diag([0.1, 0.1, 0.01])
+    # Q = np.diag([0.2**2, 0.2**2, 0.05**2])
     # np.random.seed(10)
     init_state = np.array([0,0,-np.pi/4])
-    gps = GPS(np.array([[1, 1, 0]]), np.diag([0.1**2]), f_gps)
-    mag = Magnotometer(np.array([[0, 0, 1]]), np.diag([0.3**2]), f_imu)
+    gps = GPS(np.array([[1, 1, 0]]), np.diag([0.01**2]), f_gps)
+    mag = Magnotometer(np.array([[0, 0, 1]]), np.diag([0.8]), f_imu)
     car = MultiSensorRobot(init_state, Q, 1/f_control, [gps, mag])
     init_belief = Gaussian(init_state, np.diag([1**2, 1**2, 0.5**2]))
 
@@ -133,6 +134,7 @@ def plot_2D_comparison(filter_list, car, label):
     a1.set_ylabel("Position")
     a2.set_ylabel("Heading")
     a3.set_ylabel("Position Covariance")
+    # a3.set_yscale("log")
     a4.set_ylabel("Heading Covariance")
     true_states = np.array(car.true_states)
     a1.plot(true_states[:, 0], true_states[:, 1], label="True Position", color='k')
@@ -140,7 +142,7 @@ def plot_2D_comparison(filter_list, car, label):
     a1.legend()
     a3.legend()
 
-    plt.savefig(f"media/1D_car_{label}.svg")
+    plt.savefig(f"media/2D_car_{label}.svg")
 
 
 test_full_fusion()

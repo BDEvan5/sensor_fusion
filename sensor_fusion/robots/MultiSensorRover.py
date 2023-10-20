@@ -69,7 +69,7 @@ class GPS:
         self.dt = 1/frequency
 
     def measure(self, state, t):
-        if t%self.dt < 0.05: 
+        if t%self.dt < 0.1: 
             measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(self.R.shape[0]), self.R)
         else: measurement = None
         return measurement
