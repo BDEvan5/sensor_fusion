@@ -4,7 +4,6 @@ from sensor_fusion.robots.AutonomousRacer import AutonomousRacer
 from sensor_fusion.utils.utils import *
 
 from sensor_fusion.filters.ParticleFilter import ParticleFilter
-import cProfile, pstats, io
 
 from matplotlib.animation import FuncAnimation  
 from PIL import Image
@@ -16,7 +15,7 @@ def convert_to_map_coords(x, y, map_resolution=0.05, map_origin=[10, 22.6]):
     return map_x, map_y
 
 
-def continuous_plot():
+def make_animation():
     Q = np.diag([0.1**2, 0.1**2, 0.1**2])
     R = np.diag([0.1**2])
     NP = 100
@@ -38,11 +37,7 @@ def continuous_plot():
     plt.tight_layout(pad=1.5)
     plt.subplots_adjust(top=0.9)
 
-    plt.setp(a1, xticks=[], yticks=[])
-    plt.setp(a2, xticks=[], yticks=[])
-    plt.setp(a3, xticks=[], yticks=[])
-    plt.setp(a4, xticks=[], yticks=[])
-    plt.setp(a5, xticks=[], yticks=[])
+    for a in (a1, a2, a3, a4, a5): plt.setp(a, xticks=[], yticks=[])
 
     a1.set_title("Initial belief", fontweight="bold")
     a2.set_title("Motion update", fontweight="bold")
@@ -57,7 +52,6 @@ def continuous_plot():
 
     init_dist = a1.plot(particle_filter.particles[:, 0], particle_filter.particles[:, 1], 'o', color='#4b7bec', alpha=0.7)[0]
     init2 = a2.plot(particle_filter.particles[:, 0], particle_filter.particles[:, 1], 'o', color='#4b7bec', alpha=0.3, markersize=6)[0]
-    # init4 = a4.plot(particle_filter.particles[:, 0], particle_filter.particles[:, 1], 'o', color='#4b7bec', alpha=0.1, markersize=6)[0]
     prior_dist = a2.plot(particle_filter.particles[:, 0], particle_filter.particles[:, 1], 'o', color='#eb3b5a', alpha=0.9)[0]
     prior2 = a3.plot(particle_filter.particles[:, 0], particle_filter.particles[:, 1], '.', color='#eb3b5a', alpha=0.5)[0]
     weight_dist = a3.scatter(particle_filter.particles[:, 0], particle_filter.particles[:, 1], s=particle_filter.weights*weight_scale, color='#fd9644', alpha=0.9)
@@ -87,10 +81,7 @@ def continuous_plot():
         b = a5.plot([x1, x2], [y1, y2], color='#0fb9b1', alpha=0.9, linewidth=2)[0]
         beams.append(b)
 
-    # for k in range (1, 31):
     def update(k):
-    # for k in range (1,T*f_s+1):
-
         init_dist.set_data(particle_filter.proposal_distribution[:, 0], particle_filter.proposal_distribution[:, 1]) 
         init2.set_data(particle_filter.proposal_distribution[:, 0], particle_filter.proposal_distribution[:, 1]) 
         xs, ys = convert_to_map_coords(particle_filter.proposal_distribution[:, 0], particle_filter.proposal_distribution[:, 1], map_resolution, map_origin)
@@ -109,8 +100,6 @@ def continuous_plot():
         x_max = max(np.max(particle_filter.particles[:, 0]), np.max(particle_filter.proposal_distribution[:, 0])) + block_size
         y_min = min(np.min(particle_filter.particles[:, 1]), np.min(particle_filter.proposal_distribution[:, 1])) - block_size
         y_max = max(np.max(particle_filter.particles[:, 1]), np.max(particle_filter.proposal_distribution[:, 1])) + block_size
-        s_min = min(x_min, y_min)
-        s_max = max(x_max, y_max)
 
         for a in (a1, a2):
             a.set_xlim(x_min, x_max)
@@ -162,16 +151,11 @@ def continuous_plot():
 
         return (init_dist, init2, prior_dist, prior2, weight_dist, weight4, resample, resample5, arrow, arrow2, init5, *beams)
 
-        # plt.pause(0.5)
-    # plt.show()
-
-
-
     anim = FuncAnimation(fig, update, frames = 42, interval = 20) 
     
     anim.save('media/ParticleFilter.gif', writer = 'ffmpeg', fps = 3) 
 
 
 
-continuous_plot()
+make_animation()
 

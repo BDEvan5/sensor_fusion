@@ -48,5 +48,8 @@ Particle filter, LiDAR based localisation:
 - Add the Linear Kalman Filter (LKF)
 - Add more visualisations
 
-
+### Current work
+- Add the non-linear assignment 3 sensor fusion example
+- Convert the memo into a question sheet too
+- Do a final check on the assignment
 
