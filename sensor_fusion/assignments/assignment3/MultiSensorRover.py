@@ -59,3 +59,46 @@ def dynamics(state, phi, T_s):
     new_state[:, 2] = state[:, 2] + T_s*SPEED*phi/VEHICLE_LENGTH
 
     return new_state
+
+
+class GPS:
+    def __init__(self, C, R, frequency) -> None:
+        self.name = "GPS"
+        self.C = C
+        self.R = R
+        self.dt = 1/frequency
+
+    def measure(self, state, t):
+        if t%self.dt < 0.1: 
+            measurement =  self.C.dot(state) 
+            noise = np.random.multivariate_normal(np.zeros(self.R.shape[0]), self.R)
+            measurement += noise
+        else: measurement = None
+        return measurement
+
+
+class Sensor:
+    def __init__(self, C, R, frequency) -> None:
+        self.name = "IMU"
+        self.C = C
+        self.R = R
+        self.dt = 1/frequency
+
+    def measure(self, state, t):
+        if t%self.dt < 0.05: 
+            measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(self.C.shape[0]), self.R)
+        else: measurement = None
+        return measurement
+
+class Magnotometer:
+    def __init__(self, C, R, frequency) -> None:
+        self.name = "Magnotometer"
+        self.C = C
+        self.R = R
+        self.dt = 1/frequency
+
+    def measure(self, state, t):
+        if t%self.dt < self.dt: 
+            measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(self.C.shape[0]), self.R)
+        else: measurement = None
+        return measurement

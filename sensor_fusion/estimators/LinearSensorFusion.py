@@ -2,8 +2,9 @@ import numpy as np
 from sensor_fusion.utils.Gaussian import Gaussian
 
 
-class SensorFusionLKF:
-    def __init__(self, init_belief, A, B, Q, sensor_list=[]):
+class LinearSensorFusion:
+    def __init__(self, init_belief, A, B, Q, name, sensor_list=[]):
+        self.name = name
         self.beliefs = [init_belief]
         self.A = A
         self.B = B
@@ -41,19 +42,4 @@ class SensorFusionLKF:
     def get_estimated_covariances(self):
         covariances = [belief.get_covariance() for belief in self.beliefs]
         return np.array(covariances)
-    
-
-
-class LinearSensor:
-    def __init__(self, name, C, R, frequency) -> None:
-        self.name = name
-        self.C = C
-        self.R = R
-        self.dt = 1/frequency
-
-    def measure(self, state, t):
-        if t%self.dt < 1/20: 
-            measurement =  self.C.dot(state) + np.random.multivariate_normal(np.zeros(1), self.R)
-        else: measurement = None
-        return measurement
     

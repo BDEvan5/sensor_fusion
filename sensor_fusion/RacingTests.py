@@ -3,17 +3,17 @@ from sensor_fusion.utils.Gaussian import Gaussian
 from sensor_fusion.robots.AutonomousRacer import AutonomousRacer
 from sensor_fusion.utils.utils import *
 
-from sensor_fusion.filters.ParticleFilter import ParticleFilter
+from sensor_fusion.estimators.ParticleFilter import ParticleFilter
 import cProfile, pstats, io
 
 
-def simulate_racing(robot, filter, f_s, T):
+def simulate_racing(robot, estimator, f_s, T):
     for k in range (1,T*f_s+1):
         control = robot.move()
-        filter.control_update(control)
+        estimator.control_update(control)
         measurement = robot.measure()
         if measurement is not None:
-            filter.measurement_update(measurement)
+            estimator.measurement_update(measurement)
 
 def simulate_car_pf():
     Q = np.diag([0.1**2, 0.1**2, 0.05**2])
