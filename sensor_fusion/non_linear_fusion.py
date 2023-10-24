@@ -78,7 +78,7 @@ def plot_2D_comparison(estimator_list, car, label):
     a1.legend()
     a3.legend()
 
-    plt.savefig(f"media/2D_car_{label}.svg")
+    plt.savefig(f"media/NonLinearFusion_{label}.svg")
 
 
 test_full_fusion()

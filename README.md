@@ -1,16 +1,17 @@
 # Sensor Fusion Algorithms
 
 This repo provides examples of popular filtering algorithms for state estimation.
-Currently, the following algorithms are availbl:
+Currently, the following algorithms are availble:
 - Extended Kalman Filter (EKF)
 - Unscented Kalman Filter (UKF)
 - Particle Filter (PF)
 
-An indepth note on probability theory and the state estimation equations is [provided](media/KalmanFilterNotes.pdf).
+An in-depth note on probability theory and the state estimation equations is [provided](media/KalmanFilterNotes.pdf).
 
 > 📘 Usage
 > 
 > Run the `RoverTests.py` and `RacingTests.py` files to test the filters.
+> Run the `linear_fusion_tests.py` and `non_linear_fusion.py` to test the sensor fusion examples.
 
 ## Rover Tests
 
@@ -28,6 +29,15 @@ The same rover dynamics are used, but a controller that moves the vehicle around
 Instead of a beacon, a LiDAR scanner is used and a method is provided to simulate LiDAR scans.
 The goal of the task is to estimate the vehicle's position as accurately as possible.
 
+**Particle Filter:**
+
+![](media/ParticleFilter.gif)
+
+**Extended Kalman Filter Sensor Fusion:**
+
+![](media/SensorFusion_2D.gif)
+
+
 ## Results
 
 Results from the rover localisation tests.
@@ -42,14 +52,12 @@ Particle filter, LiDAR based localisation:
 
 ![](media/Particle%20Filter%20localisation.svg)
 
-![](media/ParticleFilter.gif)
+### Sensor Fusion
 
-### Planning improvements
-- Add the Linear Kalman Filter (LKF)
-- Add more visualisations
+Linear Sensor Fusion
 
-### Current work
-- Add the non-linear assignment 3 sensor fusion example
-- Convert the memo into a question sheet too
-- Do a final check on the assignment
+![](media/LinearSensorFusion_comparison.svg)
+
+Non-linear Sensor Fusion
+![](media/NonLinearFusion_comparison.svg)
 

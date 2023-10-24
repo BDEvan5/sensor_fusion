@@ -65,7 +65,7 @@ def plot_comparison(car, estimator_list, save_name):
     a1.legend()
     a3.legend()
 
-    plt.savefig(f"media/1D_car_{save_name}.svg")
+    plt.savefig(f"media/LinearSensorFusion_{save_name}.svg")
 
 
 test_full_fusion()
