@@ -8,7 +8,8 @@ VEHICLE_LENGTH = 0.5
 RANGE = 100
 
 MAP_NAME = "aut_wide"
-NUM_BEAMS = 10
+NUM_BEAMS = 200
+# NUM_BEAMS = 45
 
 
 class AutonomousRacer:

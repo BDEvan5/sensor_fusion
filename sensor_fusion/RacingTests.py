@@ -30,10 +30,10 @@ def simulate_car_pf():
 
     true_states, noisy_states = robot.get_states()
     estimates = particle_filter.get_estimated_states()
-    plot_racing_localistion(estimates, true_states, noisy_states, robot)
-
     mae = np.mean(np.abs(true_states - estimates))
     print(f"MAE: {mae:.4f} cm")
+    plot_racing_localistion(estimates, true_states, noisy_states, robot)
+
 
 
 def profile_particle_filter(number_of_particles):
