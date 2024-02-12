@@ -8,7 +8,8 @@ VEHICLE_LENGTH = 0.5
 RANGE = 100
 
 MAP_NAME = "aut_wide"
-NUM_BEAMS = 200
+NUM_BEAMS = 10
+# NUM_BEAMS = 200
 # NUM_BEAMS = 45
 
 
@@ -96,7 +97,10 @@ class RacingController:
         self.current_ind = 0
 
     def get_control(self, pose):
-        dists = np.linalg.norm(self.wpts[self.current_ind:self.current_ind+50] - pose[:2], axis=1)
+        if self.current_ind == 0:
+            dists = np.linalg.norm(self.wpts - pose[:2], axis=1)
+        else:
+            dists = np.linalg.norm(self.wpts[self.current_ind:self.current_ind+50] - pose[:2], axis=1)
         self.current_ind += np.argmin(dists)
         wpt = self.wpts[self.current_ind + 20] # 1.2 m lookahead distance
 

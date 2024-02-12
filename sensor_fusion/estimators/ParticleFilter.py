@@ -16,28 +16,19 @@ class ParticleFilter:
         self.weights = np.ones(self.NP) / self.NP
         self.particle_indices = np.arange(self.NP)
 
-    def control_update(self, control):
-        next_states = self.f(self.proposal_distribution, control)
+    def control_update(self, control, use_proposal_dist=True):
+        if use_proposal_dist:
+            next_states = self.f(self.proposal_distribution, control)
+        else:
+            next_states = self.f(self.particles, control)
+            
         random_samples = np.random.multivariate_normal(np.zeros(3), self.Q, self.NP)
         self.particles = next_states + random_samples
-
-    # def particle_control_update(self, control):
-    #     next_states = self.f(self.particles, control)
-    #     random_samples = np.random.multivariate_normal(np.zeros(3), self.Q, self.NP)
-    #     self.particles = next_states + random_samples
 
     def measurement_update(self, measurement):
         particle_measurements = self.h(self.particles)
         z = particle_measurements - measurement
-        # ssd = np.power(z, 2)
-        # ssd = np.sum(ssd, axis=1)
-        # sigma = np.sqrt(np.average(ssd, axis=0))
-        # self.weights = 1.0 / np.sqrt(2.0 * np.pi * sigma ** 2) * np.exp(-ssd / (2 * sigma ** 2))
 
-
-        # ssd = np.power(z, 2)
-        # ssd = np.sum(ssd, axis=1)
-        # self.weights = np.exp(-0.5 * ssd)
         sigma = np.sqrt(np.average(z**2, axis=0))
         weights = 1.0 / np.sqrt(2.0 * np.pi * sigma ** 2) * np.exp(-z ** 2 / (2 * sigma ** 2))
         self.weights = np.prod(weights, axis=1) 
@@ -55,7 +46,4 @@ class ParticleFilter:
 
     def get_estimated_states(self):
         return np.array(self.estimates)
-
-
-
 

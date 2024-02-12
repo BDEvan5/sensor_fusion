@@ -61,3 +61,10 @@ Linear Sensor Fusion
 Non-linear Sensor Fusion
 ![](media/NonLinearFusion_comparison.svg)
 
+# Installation
+
+We propose using a venv for package mangaement.
+
+
+
+
